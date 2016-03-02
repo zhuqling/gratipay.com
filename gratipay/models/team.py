@@ -67,6 +67,33 @@ class Team(Model):
         """, fields)
 
 
+    def update(self, **kw):
+      updateable = frozenset(['name', 'product_or_service', 'homepage',
+                              'onboarding_url', 'todo_url'])
+
+      cols, vals = zip(*kw.items())
+      assert set(cols).issubset(updateable)
+
+      old_value = {}
+      for col in cols:
+        old_value[col] = getattr(self, col)
+
+      cols = ', '.join(cols)
+      placeholders = ', '.join(['%s']*len(vals))
+
+      with self.db.get_cursor() as c:
+        c.run("""
+          UPDATE teams
+             SET ({0}) = ({1})
+           WHERE id = %s
+          """.format(cols, placeholders), vals+(self.id,)
+        )
+        add_event(c, 'team', dict( action='update'
+                                 , id=self.id
+                                 , **old_value
+                                  ))
+        self.set_attributes(**kw)
+
     def create_github_review_issue(self):
         """POST to GitHub, and return the URL of the new issue.
         """
@@ -144,13 +171,25 @@ class Team(Model):
                , True: 'approved'
                 }[self.is_approved]
 
+    def to_dict(self):
+        return {
+            'homepage': self.homepage,
+            'name': self.name,
+            'nreceiving_from': self.nreceiving_from,
+            'onboarding_url': self.onboarding_url,
+            'owner': '~' + self.owner,
+            'receiving': self.receiving,
+            'slug': self.slug,
+            'status': self.status,
+            'todo_url': self.todo_url
+        }
+
     def migrate_tips(self):
         payment_instructions = self.db.all("""
             SELECT pi.*
               FROM payment_instructions pi
               JOIN teams t ON t.slug = pi.team
-              JOIN participants p ON t.owner = p.username
-             WHERE p.username = %s
+             WHERE t.owner = %s
                AND pi.ctime < t.ctime
         """, (self.owner, ))
 

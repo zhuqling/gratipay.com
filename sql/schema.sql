@@ -711,11 +711,25 @@ END;
 
 
 -- https://github.com/gratipay/gratipay.com/pull/3814
-ALTER TABLE participants REMOVE COLUMN number;
+ALTER TABLE participants DROP COLUMN number;
 
 
 -- https://github.com/gratipay/gratipay.com/pull/3829
-BEGIN;
-    ALTER TYPE payment_net ADD VALUE 'cash';
-    ALTER TYPE payment_net ADD VALUE 'transferwise';
-END;
+ALTER TYPE payment_net ADD VALUE 'cash';
+ALTER TYPE payment_net ADD VALUE 'transferwise';
+
+
+-- https://github.com/gratipay/gratipay.com/pull/3861
+ALTER TYPE payment_net ADD VALUE 'dwolla';
+
+-- https://github.com/gratipay/gratipay.com/pull/3893
+ALTER TABLE emails ADD COLUMN participant_id bigint DEFAULT NULL
+	REFERENCES participants(id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+
+ALTER TABLE emails ADD UNIQUE (participant_id, address);
+
+-- https://github.com/gratipay/gratipay.com/pull/3896
+ALTER TABLE emails ALTER COLUMN participant_id SET NOT NULL;
+
+-- https://github.com/gratipay/gratipay.com/pull/3898
+ALTER TABLE emails DROP COLUMN participant;

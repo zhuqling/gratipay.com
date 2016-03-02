@@ -31,6 +31,7 @@ from gratipay.exceptions import (
     CannotRemovePrimaryEmail,
     EmailNotVerified,
     TooManyEmailAddresses,
+    ResendingTooFast,
 )
 
 from gratipay.billing.instruments import CreditCard
@@ -346,7 +347,7 @@ class Participant(Model):
                    AND is_member IS true
             );
 
-            DELETE FROM emails WHERE participant = %(username)s;
+            DELETE FROM emails WHERE participant_id = %(participant_id)s;
             DELETE FROM statements WHERE participant=%(participant_id)s;
 
             UPDATE participants
@@ -368,7 +369,7 @@ class Participant(Model):
     # Emails
     # ======
 
-    def add_email(self, email):
+    def add_email(self, email, resend_threshold='3 minutes'):
         """
             This is called when
             1) Adding a new email address
@@ -379,10 +380,11 @@ class Participant(Model):
 
         # Check that this address isn't already verified
         owner = self.db.one("""
-            SELECT participant
-              FROM emails
-             WHERE address = %(email)s
-               AND verified IS true
+            SELECT p.username
+              FROM emails e INNER JOIN participants p
+                ON e.participant_id = p.id
+             WHERE e.address = %(email)s
+               AND e.verified IS true
         """, locals())
         if owner:
             if owner == self.username:
@@ -395,23 +397,31 @@ class Participant(Model):
 
         nonce = str(uuid.uuid4())
         verification_start = utcnow()
+
+        nrecent = self.db.one( "SELECT count(*) FROM emails WHERE address=%s AND "
+                               "%s - verification_start < %s"
+                             , (email, verification_start, resend_threshold)
+                              )
+        if nrecent:
+            raise ResendingTooFast()
+
         try:
             with self.db.get_cursor() as c:
                 add_event(c, 'participant', dict(id=self.id, action='add', values=dict(email=email)))
                 c.run("""
                     INSERT INTO emails
-                                (address, nonce, verification_start, participant)
+                                (address, nonce, verification_start, participant_id)
                          VALUES (%s, %s, %s, %s)
-                """, (email, nonce, verification_start, self.username))
+                """, (email, nonce, verification_start, self.id))
         except IntegrityError:
             nonce = self.db.one("""
                 UPDATE emails
                    SET verification_start=%s
-                 WHERE participant=%s
+                 WHERE participant_id=%s
                    AND address=%s
                    AND verified IS NULL
              RETURNING nonce
-            """, (verification_start, self.username, email))
+            """, (verification_start, self.id, email))
             if not nonce:
                 return self.add_email(email)
 
@@ -420,9 +430,9 @@ class Participant(Model):
         quoted_email = quote(email)
         link = "{base_url}/~{username}/emails/verify.html?email={quoted_email}&nonce={nonce}"
         r = self.send_email('verification',
-                        email=email,
-                        link=link.format(**locals()),
-                        include_unsubscribe=False)
+                            email=email,
+                            link=link.format(**locals()),
+                            include_unsubscribe=False)
         assert r == 1 # Make sure the verification email was sent
         if self.email_address:
             self.send_email('verification_notice',
@@ -461,10 +471,10 @@ class Participant(Model):
             self.db.run("""
                 UPDATE emails
                    SET verified=true, verification_end=now(), nonce=NULL
-                 WHERE participant=%s
+                 WHERE participant_id=%s
                    AND address=%s
                    AND verified IS NULL
-            """, (self.username, email))
+            """, (self.id, email))
         except IntegrityError:
             return emails.VERIFICATION_STYMIED
 
@@ -476,17 +486,17 @@ class Participant(Model):
         return self.db.one("""
             SELECT *
               FROM emails
-             WHERE participant=%s
+             WHERE participant_id=%s
                AND address=%s
-        """, (self.username, email))
+        """, (self.id, email))
 
     def get_emails(self):
         return self.db.all("""
             SELECT *
               FROM emails
-             WHERE participant=%s
+             WHERE participant_id=%s
           ORDER BY id
-        """, (self.username,))
+        """, (self.id,))
 
     def get_verified_email_addresses(self):
         return [email.address for email in self.get_emails() if email.verified]
@@ -496,8 +506,8 @@ class Participant(Model):
             raise CannotRemovePrimaryEmail()
         with self.db.get_cursor() as c:
             add_event(c, 'participant', dict(id=self.id, action='remove', values=dict(email=address)))
-            c.run("DELETE FROM emails WHERE participant=%s AND address=%s",
-                  (self.username, address))
+            c.run("DELETE FROM emails WHERE participant_id=%s AND address=%s",
+                  (self.id, address))
 
     def send_email(self, spt_name, **context):
         context['participant'] = self
@@ -1374,16 +1384,16 @@ class Participant(Model):
             WITH emails_to_keep AS (
                      SELECT DISTINCT ON (address) id
                        FROM emails
-                      WHERE participant IN (%(dead)s, %(live)s)
+                      WHERE participant_id IN (%(dead)s, %(live)s)
                    ORDER BY address, verification_end, verification_start DESC
                  )
             DELETE FROM emails
-             WHERE participant IN (%(dead)s, %(live)s)
+             WHERE participant_id IN (%(dead)s, %(live)s)
                AND id NOT IN (SELECT id FROM emails_to_keep);
 
             UPDATE emails
-               SET participant = %(live)s
-             WHERE participant = %(dead)s;
+               SET participant_id = %(live)s
+             WHERE participant_id = %(dead)s;
 
         """
 
@@ -1516,7 +1526,7 @@ class Participant(Model):
                 # Take over email addresses.
                 # ==========================
 
-                cursor.run(MERGE_EMAIL_ADDRESSES, dict(live=x, dead=y))
+                cursor.run(MERGE_EMAIL_ADDRESSES, dict(live=self.id, dead=other.id))
 
                 # Disconnect any remaining elsewhere account.
                 # ===========================================
