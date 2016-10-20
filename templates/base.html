@@ -66,9 +66,23 @@
         <div id="banner">
             {% block banner %}{% if banner %}<h1>{{ banner }}</h1>{% endif %}{% endblock %}
         </div>
+        {% if not request.path.raw.startswith('/fund-open-source/') %}
+        <table id="notice">
+            <tr>
+                <td>&#x2605;</td>
+                <td>{{ _( "{nowrap}You can pay for any npm package.{_nowrap}  {nowrap}{a}Start Here!!{_a}{_nowrap}"
+                        , nowrap='<span class="nowrap">'|safe
+                        , _nowrap='</span>'|safe
+                        , a='<a href="/on/npm/">'|safe
+                        , _a='</a>'|safe
+                         ) }}</td>
+                <td>&#x2605;</td>
+            </tr>
+        </table>
+        {% endif %}
 
-        {% if request.path.raw != '/1.0-payout' %}
-        {% if not user.participant or user.participant.status_of_1_0_payout == 'pending-application' %}
+        {% if user.participant and request.path.raw.startswith('/~/%s/' % user.participant.username) %}
+        {% if user.participant.status_of_1_0_payout == 'pending-application' %}
         <table id="notice">
             <tr>
                 <td>&#x2605;</td>
