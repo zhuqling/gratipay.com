@@ -1,16 +1,10 @@
-{% set approved_teams = participant.get_teams(only_approved=True) %}
+{% set only_show_approved = (user.ADMIN or user.participant == participant) %}
+{% set teams = participant.get_teams(only_approved=only_show_approved) %}
 
-{% if (user.ADMIN or user.participant == participant) and approved_teams %}
+{% if teams %}
     <h2>{{ _("Teams") }}</h2>
     <ul class="team memberships">
-        {% for team in participant.get_teams() %}
-        <li><a href="/{{ team.slug }}/">{{ team.name }}</a></li>
-        {% endfor %}
-    </ul>
-{% elif approved_teams %}
-    <h2>{{ _("Teams") }}</h2>
-    <ul class="team memberships">
-        {% for team in approved_teams %}
+        {% for team in teams %}
         <li><a href="/{{ team.slug }}/">{{ team.name }}</a></li>
         {% endfor %}
     </ul>
