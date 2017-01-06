@@ -112,9 +112,33 @@ class TestPages(Harness):
         assert self.client.GxT('/on/twitter/associate').code == 400
 
     def test_about(self):
-        expected = "We provide voluntary"
+        expected = "We help companies and others"
         actual = self.client.GET('/about/').body
         assert expected in actual
+
+    def test_about_me_is_401_for_anon(self):
+        assert self.client.GxT('/about/me/').code == 401
+
+    def test_about_me_giving_is_401_for_anon(self):
+        assert self.client.GxT('/about/me/giving/').code == 401
+
+    def test_about_me_history_is_401_for_anon(self):
+        assert self.client.GxT('/about/me/history/').code == 401
+
+    def test_about_me_emails_is_401_for_anon(self):
+        assert self.client.GxT('/about/me/emails/').code == 401
+
+    def test_about_me_routes_is_401_for_anon(self):
+        assert self.client.GxT('/about/me/routes/').code == 401
+
+    def test_about_me_settings_is_401_for_anon(self):
+        assert self.client.GxT('/about/me/settings/').code == 401
+
+    def test_about_me_widgets_is_401_for_anon(self):
+        assert self.client.GxT('/about/me/widgets/').code == 401
+
+    def test_about_me_events_is_401_for_anon(self):
+        assert self.client.GxT('/about/me/events/').code == 401
 
     def test_about_stats(self):
         expected = "Gratipay processes"
@@ -134,10 +158,7 @@ class TestPages(Harness):
         assert self.client.GxT('/about/features/teams/').code == 302
 
     def test_about_payments(self):
-        assert "Payments" in self.client.GET('/about/features/payments').body.decode('utf8')
-
-    def test_about_payroll(self):
-        assert "Payroll" in self.client.GET('/about/features/payroll').body.decode('utf8')
+        assert "Payments" in self.client.GET('/about/features/').body.decode('utf8')
 
     def test_404(self):
         response = self.client.GET('/about/four-oh-four.html', raise_immediately=False)
