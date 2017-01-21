@@ -264,7 +264,7 @@ msgstr ""
 
 msgid ""
 "{nowrap}Our new {a}Terms of Service{_a}{_nowrap} {nowrap}make it {a2}easier "
-"to join Gratipay{_a}{_nowrap}."
+"to get funded on Gratipay{_a}{_nowrap}."
 msgstr ""
 
 msgid "Blog"
@@ -284,24 +284,6 @@ msgstr "Junte-se a Comunidades"
 
 msgid "Social Profiles"
 msgstr "Perfis Sociais"
-
-msgid "Other Receiving Options"
-msgstr "Outras opções de recebimento"
-
-msgid "Other Giving Options"
-msgstr "Outras opções para doar"
-
-msgid "Save"
-msgstr "Salvar"
-
-msgid "Cancel"
-msgstr "Cancelar"
-
-msgid "Delete"
-msgstr ""
-
-msgid "Edit"
-msgstr "Editar"
 
 msgid "Project"
 msgstr ""
@@ -339,6 +321,9 @@ msgstr "Perfil"
 msgid "Statement"
 msgstr "Afirmação"
 
+msgid "Edit"
+msgstr "Editar"
+
 msgid "Tell us how you're making the world better."
 msgstr "Conte-nos como você está tornando o mundo melhor."
 
@@ -355,6 +340,12 @@ msgstr "O que é markdown?"
 
 msgid "View source."
 msgstr "Veja fonte."
+
+msgid "Save"
+msgstr "Salvar"
+
+msgid "Cancel"
+msgstr "Cancelar"
 
 msgid "Credit Card"
 msgstr "Cartão de Crédito"
@@ -609,7 +600,7 @@ msgstr ""
 msgid "Continue"
 msgstr ""
 
-msgid "Apply to Join"
+msgid "Fund Your Project"
 msgstr ""
 
 msgid "created {ago}"
@@ -657,6 +648,12 @@ msgid "{a} Edit project {_a}"
 msgstr ""
 
 msgid "owned by {a}~{owner}{_a}"
+msgstr ""
+
+msgid "Project Closed"
+msgstr ""
+
+msgid "Please {a}email support{_a} to reopen."
 msgstr ""
 
 msgid "Please sign in first"
@@ -731,6 +728,9 @@ msgstr "Sim"
 msgid "No"
 msgstr "Não"
 
+msgid "Already closed."
+msgstr ""
+
 msgid "You can't edit a closed project."
 msgstr ""
 
@@ -756,6 +756,12 @@ msgid "Edit Your Project"
 msgstr ""
 
 msgid "Modify"
+msgstr ""
+
+msgid "Danger Zone"
+msgstr ""
+
+msgid "Close Project"
 msgstr ""
 
 msgid "{0} receives {1} per week from {2} ~users."
@@ -934,7 +940,7 @@ msgstr "Conecte"
 msgid "What is Gratipay?"
 msgstr "O que é o Gratipay?"
 
-msgid "Gratipay provides payments and payroll for open work."
+msgid "Gratipay helps companies and others pay for open source."
 msgstr ""
 
 msgid "Status"
@@ -1213,9 +1219,6 @@ msgstr ""
 msgid "Postcode (ZIP)"
 msgstr ""
 
-msgid "Danger Zone"
-msgstr ""
-
 msgid "Remove This Identity"
 msgstr ""
 
@@ -1387,9 +1390,6 @@ msgstr "Ligado"
 
 msgid "Off"
 msgstr "Desligado"
-
-msgid "Close"
-msgstr "Fechar"
 
 msgid "Giving & Taking Widgets"
 msgstr ""

@@ -271,7 +271,7 @@ msgstr ""
 
 msgid ""
 "{nowrap}Our new {a}Terms of Service{_a}{_nowrap} {nowrap}make it {a2}easier "
-"to join Gratipay{_a}{_nowrap}."
+"to get funded on Gratipay{_a}{_nowrap}."
 msgstr ""
 
 msgid "Blog"
@@ -291,24 +291,6 @@ msgstr "Interessengemeinschaften beitreten"
 
 msgid "Social Profiles"
 msgstr "Soziale Profile"
-
-msgid "Other Receiving Options"
-msgstr "Andere Empfangsoptionen"
-
-msgid "Other Giving Options"
-msgstr "Andere Unterstützungsmöglichkeiten"
-
-msgid "Save"
-msgstr "Speichern"
-
-msgid "Cancel"
-msgstr "Abbrechen"
-
-msgid "Delete"
-msgstr ""
-
-msgid "Edit"
-msgstr "Editieren"
 
 msgid "Project"
 msgstr ""
@@ -346,6 +328,9 @@ msgstr "Profil"
 msgid "Statement"
 msgstr "Statement"
 
+msgid "Edit"
+msgstr "Editieren"
+
 msgid "Tell us how you're making the world better."
 msgstr "Erzähl uns, wie du die Welt besser machst."
 
@@ -362,6 +347,12 @@ msgstr "Was ist Markdown?"
 
 msgid "View source."
 msgstr "Quelltext"
+
+msgid "Save"
+msgstr "Speichern"
+
+msgid "Cancel"
+msgstr "Abbrechen"
 
 msgid "Credit Card"
 msgstr "Kreditkarte"
@@ -402,8 +393,8 @@ msgstr "Widgets"
 msgid "Events"
 msgstr "Events"
 
-msgid "Sign in"
-msgstr "Anmelden"
+msgid "Sign in / Sign up"
+msgstr ""
 
 #, python-format
 msgid "Only {0}% of active users also {1}support Gratipay{2}."
@@ -616,7 +607,7 @@ msgstr ""
 msgid "Continue"
 msgstr ""
 
-msgid "Apply to Join"
+msgid "Fund Your Project"
 msgstr ""
 
 msgid "created {ago}"
@@ -664,6 +655,12 @@ msgid "{a} Edit project {_a}"
 msgstr ""
 
 msgid "owned by {a}~{owner}{_a}"
+msgstr ""
+
+msgid "Project Closed"
+msgstr ""
+
+msgid "Please {a}email support{_a} to reopen."
 msgstr ""
 
 msgid "Please sign in first"
@@ -738,6 +735,9 @@ msgstr ""
 msgid "No"
 msgstr ""
 
+msgid "Already closed."
+msgstr ""
+
 msgid "You can't edit a closed project."
 msgstr ""
 
@@ -763,6 +763,12 @@ msgid "Edit Your Project"
 msgstr ""
 
 msgid "Modify"
+msgstr ""
+
+msgid "Danger Zone"
+msgstr ""
+
+msgid "Close Project"
 msgstr ""
 
 msgid "{0} receives {1} per week from {2} ~users."
@@ -941,7 +947,7 @@ msgstr ""
 msgid "What is Gratipay?"
 msgstr ""
 
-msgid "Gratipay provides payments and payroll for open work."
+msgid "Gratipay helps companies and others pay for open source."
 msgstr ""
 
 msgid "Status"
@@ -1220,9 +1226,6 @@ msgstr ""
 msgid "Postcode (ZIP)"
 msgstr ""
 
-msgid "Danger Zone"
-msgstr ""
-
 msgid "Remove This Identity"
 msgstr ""
 
@@ -1394,9 +1397,6 @@ msgstr "An"
 
 msgid "Off"
 msgstr "Aus"
-
-msgid "Close"
-msgstr "Schließen"
 
 msgid "Giving & Taking Widgets"
 msgstr ""
