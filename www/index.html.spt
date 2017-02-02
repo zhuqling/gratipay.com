@@ -19,7 +19,7 @@ teams = website.db.all("""
 
     SELECT teams.*::teams
       FROM teams
-     WHERE not is_closed
+     WHERE not is_closed AND is_approved
   ORDER BY ctime DESC
 
 """)
