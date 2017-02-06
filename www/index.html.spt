@@ -19,8 +19,16 @@ teams = website.db.all("""
 
     SELECT teams.*::teams
       FROM teams
-     WHERE not is_closed AND is_approved
+     WHERE not is_closed AND is_approved = True
   ORDER BY ctime DESC
+
+""")
+
+count_unreviewed = website.db.all("""
+
+    SELECT count(id)
+    FROM teams
+    WHERE not is_closed and is_approved = False
 
 """)
 
@@ -53,12 +61,19 @@ else:
 nteams = 0
 for key, tab in tabs.items():
     n = tab['n'] = len(tab['teams'])
-    nteams += n
-    tab['name'] = '<span class="status-icon {}">{}</span> {} (n={})'.format( key
+    if n > 0:
+      nteams += n
+      tab['name'] = '<span class="status-icon {}">{}</span> {} (n={})'.format( key
                                                                            , status_icons[key]
                                                                            , i18ned_statuses[key]
                                                                            , n
                                                                             )
+    else:
+      tab['name'] = '<span class="status-icon {}">{}</span> {} (n=CHANGEME)'.format( key
+                                                                         , status_icons[key]
+                                                                         , i18ned_statuses[key]
+                                                                         , n
+                                                                          )
 
 title = _("Projects")
 suppress_sidebar = True
