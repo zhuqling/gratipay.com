@@ -48,7 +48,8 @@ count_approved = website.db.one("""
 
 """)
 
-counts = {'featured': 10, 'approved': count_approved, 'unreviewed': count_unreviewed, 'rejected': count_rejected}
+featured_length = 10
+counts = {'featured': featured_length, 'approved': count_approved, 'unreviewed': count_unreviewed, 'rejected': count_rejected}
 
 volume = website.db.one("SELECT volume FROM paydays ORDER BY ts_start DESC LIMIT 1", default=0)
 volume = int(round(volume, -2))
@@ -69,7 +70,7 @@ for project in teams:
         else:
             unpopular.append(project)
 
-if len(tabs['approved']['teams']) < 10:
+if len(tabs['approved']['teams']) < featured_length:
     tabs.pop('featured')
 else:
     featured_projects = get_featured_projects(popular, unpopular)
