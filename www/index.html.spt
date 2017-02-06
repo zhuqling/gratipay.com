@@ -24,13 +24,31 @@ teams = website.db.all("""
 
 """)
 
-count_unreviewed = website.db.all("""
+count_unreviewed = website.db.one("""
 
     SELECT count(id)
     FROM teams
     WHERE not is_closed and is_approved = False
 
 """)
+
+count_rejected = website.db.one("""
+
+    SELECT count(id)
+    FROM teams
+    WHERE is_closed
+
+""")
+
+count_approved = website.db.one("""
+
+    SELECT count(id)
+    FROM teams
+    WHERE not is_closed AND is_approved = True
+
+""")
+
+counts = {'featured': 10, 'approved': count_approved, 'unreviewed': count_unreviewed, 'rejected': count_rejected}
 
 volume = website.db.one("SELECT volume FROM paydays ORDER BY ts_start DESC LIMIT 1", default=0)
 volume = int(round(volume, -2))
@@ -61,6 +79,7 @@ else:
 nteams = 0
 for key, tab in tabs.items():
     n = tab['n'] = len(tab['teams'])
+    print(key)
     if n > 0:
       nteams += n
       tab['name'] = '<span class="status-icon {}">{}</span> {} (n={})'.format( key
@@ -69,11 +88,11 @@ for key, tab in tabs.items():
                                                                            , n
                                                                             )
     else:
-      tab['name'] = '<span class="status-icon {}">{}</span> {} (n=CHANGEME)'.format( key
-                                                                         , status_icons[key]
-                                                                         , i18ned_statuses[key]
-                                                                         , n
-                                                                          )
+      tab['name'] = '<span class="status-icon {}">{}</span> {} (n={})'.format( key
+                                                                       , status_icons[key]
+                                                                       , i18ned_statuses[key]
+                                                                       , counts[key]
+                                                                        )
 
 title = _("Projects")
 suppress_sidebar = True
