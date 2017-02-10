@@ -15,15 +15,6 @@ status_icons = { "approved": "&#xe008;"
                , "featured": "&#xe9d9;"
                 }
 
-teams = website.db.all("""
-
-    SELECT teams.*::teams
-      FROM teams
-     WHERE not is_closed AND is_approved = True
-  ORDER BY ctime DESC
-
-""")
-
 count_unreviewed = website.db.one("""
 
     SELECT count(id)
@@ -70,7 +61,7 @@ for project in teams:
         else:
             unpopular.append(project)
 
-if len(tabs['approved']['teams']) < featured_length:
+if len(tabs['approved']['teams']) < 10:
     tabs.pop('featured')
 else:
     featured_projects = get_featured_projects(popular, unpopular)

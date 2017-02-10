@@ -1,0 +1,10 @@
+# Fetch data from the database
+
+teams = website.db.all("""
+
+  ORDER BY ctime DESC
+
+""")
+
+[-----------------------------------------------------------------------------]
+# Response
