@@ -19,6 +19,7 @@ from gratipay.main import website
 from gratipay.models.account_elsewhere import AccountElsewhere
 from gratipay.models.exchange_route import ExchangeRoute
 from gratipay.models.participant import Participant
+from gratipay.models.team import Team
 from gratipay.security import user
 from gratipay.testing.vcr import use_cassette
 from psycopg2 import IntegrityError, InternalError
@@ -250,8 +251,14 @@ class Harness(unittest.TestCase):
         record_exchange_result(self.db, e_id, status, error, participant)
         return e_id
 
-    def make_payment(self, participant, team, amount, direction, payday, timestamp=now()):
+    def make_payment(self, participant, team, amount, direction, payday, timestamp=utcnow()):
         """Factory for payment"""
+
+        if isinstance(participant, Participant):
+            participant = participant.username
+
+        if isinstance(team, Team):
+            team = team.slug
 
         payment_id = self.db.one("""
             INSERT INTO payments
