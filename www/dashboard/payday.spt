@@ -1,0 +1,77 @@
+import calendar
+import datetime
+from decimal import Decimal as D
+
+[---]
+if user.ADMIN:
+    by_day = website.db.all("""
+        SELECT p.id as payday
+             , date_trunc('day', timestamp)::date as day
+             , network
+             , sum(case when amount > 0 then amount + fee else 0 end) as charge_amount
+             , sum(amount) as liability_delta
+             , sum(fee) as fees
+          FROM exchanges e, exchange_routes er, paydays p
+         WHERE e.route = er.id
+           AND date_trunc('day', ts_start)::date = date_trunc('day', timestamp)::date
+      GROUP BY day, network, p.id
+      ORDER BY day ASC;
+""")
+
+fmt = lambda x: "{:,.2f}".format(x)
+[---] text/html
+<html>
+    <head>
+        <title>Escrow Reconciliation Report</title>
+        <style>
+            body {
+                font-family: monospace;
+            }
+            table {
+                border-collapse: collapse;
+            }
+            tr:hover {
+                background: #CCC;
+            }
+            th {
+                text-align: left;
+                font-family: monospace;
+            }
+            td {
+                text-align: right;
+                padding-right: 20px;
+                font-family: monospace;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Reconciliation Reports</h1>
+        <p>These reports are used as part of Gratipay <a
+            href="https://github.com/gratipay/finances">financial accounting</a>
+            process.</p>
+
+        {% if user.ADMIN %}
+        <h2>By Day</h2>
+        <table>
+            <tr>
+                <th>Payday</th>
+                <th>Date</th>
+                <th>Vendor</th>
+                <th>Charge Amount ($)</th>
+                <th>Fee Income ($)</th>
+                <th>Liability &Delta; ($)</th>
+            </tr>
+            {% for payday, day, vendor, charge_amount, liability_delta, fee in by_day %}
+            <tr>
+                <td>{{ payday }}</td>
+                <td>{{ day }}</td>
+                <td>{{ vendor }}</td>
+                <td>{{ fmt(charge_amount) }}</td>
+                <td>{{ fmt(fee) }}</td>
+                <td>{{ fmt(liability_delta) }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+    </body>
+</html>
