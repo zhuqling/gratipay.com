@@ -3,8 +3,10 @@ import datetime
 from decimal import Decimal as D
 
 [---]
-if user.ADMIN:
-    by_day = website.db.all("""
+if not user.ADMIN:
+    raise Response(403)    
+
+by_day = website.db.all("""
         SELECT p.id as payday
              , date_trunc('day', timestamp)::date as day
              , network
