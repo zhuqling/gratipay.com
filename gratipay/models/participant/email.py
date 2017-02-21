@@ -37,13 +37,20 @@ class Email(object):
 
     """
 
-    def add_email(self, email, resend_threshold='3 minutes'):
+    def add_email(self, email, package=None, resend_threshold='3 minutes'):
         """Add an email address for a participant.
 
         This is called when adding a new email address, and when resending the
         verification email for an unverified email address.
 
-        :returns: the number of emails sent.
+        :param unicode email: the email address to add
+        :param Package package: a package the participant is claiming
+        :param unicode resend_threshold: the time interval to wait before
+            sending another verification message
+
+        :returns: the number of emails sent
+
+        If ``package`` is provided, then
 
         """
 
@@ -57,6 +64,8 @@ class Email(object):
         """, locals())
         if owner:
             if owner == self.username:
+                if package:
+                    return self.initiate_package_claim(package, email)
                 return 0
             else:
                 raise EmailAlreadyTaken(email)

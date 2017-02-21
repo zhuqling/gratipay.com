@@ -40,10 +40,3 @@ class Package(Model):
         """
         return cls.db.one("SELECT packages.*::packages FROM packages "
                           "WHERE package_manager=%s and name=%s", (package_manager, name))
-
-
-    # Emails
-    # ======
-
-    def send_confirmation_email(self, address):
-        pass

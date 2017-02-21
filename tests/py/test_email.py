@@ -237,12 +237,12 @@ class TestFunctions(AliceAndResend):
         self.alice.add_email('alice@gratipay.coop')
         time.sleep(0.05)
         with self.assertRaises(ResendingTooFast):
-            self.alice.add_email('alice@gratipay.coop', '0.1 seconds')
+            self.alice.add_email('alice@gratipay.coop', resend_threshold='0.1 seconds')
 
     def test_can_resend_verification_after_a_while(self):
         self.alice.add_email('alice@gratipay.coop')
         time.sleep(0.15)
-        self.alice.add_email('alice@gratipay.coop', '0.1 seconds')
+        self.alice.add_email('alice@gratipay.coop', resend_threshold='0.1 seconds')
 
     def test_html_escaping(self):
         self.alice.add_email("foo'bar@example.com")

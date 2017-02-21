@@ -190,10 +190,10 @@ class TestTakeOver(Harness):
         alice.verify_email('alice@example.org', alice.get_email('alice@example.org').nonce)
         bob_github = self.make_elsewhere('github', 2, 'bob')
         bob = bob_github.opt_in('bob')[0].participant
-        bob.add_email('alice@example.com', '0 seconds')
+        bob.add_email('alice@example.com', resend_threshold='0 seconds')
         bob.verify_email('alice@example.com', bob.get_email('alice@example.com').nonce)
-        bob.add_email('alice@example.net', '0 seconds')
-        bob.add_email('bob@example.net', '0 seconds')
+        bob.add_email('alice@example.net', resend_threshold='0 seconds')
+        bob.add_email('bob@example.net', resend_threshold='0 seconds')
         alice.take_over(bob_github, have_confirmation=True)
 
         alice_emails = {e.address: e for e in alice.get_emails()}
