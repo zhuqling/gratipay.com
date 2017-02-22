@@ -580,27 +580,17 @@ msgstr ""
 msgid "Approved"
 msgstr "Approuvées"
 
-msgid "Under Review"
-msgstr "En cours d'examen"
+msgid "Unreviewed"
+msgstr ""
 
 msgid "Rejected"
 msgstr "Rejetées"
 
+msgid "Featured"
+msgstr ""
+
 msgid "Pay for open source."
 msgstr ""
-
-msgid "Welcome to Gratipay!"
-msgstr "Bienvenue sur Gratipay !"
-
-msgid ""
-"We have {nteams} projects receiving and sharing about {volume} each week."
-msgstr ""
-
-msgid "Continue to explore our projects, or {a}read more about us{_a}."
-msgstr ""
-
-msgid "Continue"
-msgstr "Continuer"
 
 msgid "Fund Your Project"
 msgstr ""

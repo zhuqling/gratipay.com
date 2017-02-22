@@ -1,6 +1,7 @@
 # encoding: utf8
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import random
 from base64 import urlsafe_b64encode, urlsafe_b64decode
 from datetime import datetime, timedelta
 
@@ -31,14 +32,21 @@ def dict_to_querystring(mapping):
     return u'?' + u'&'.join(arguments)
 
 
-def use_tildes_for_participants(website, request):
-    if request.path.raw.startswith('/~/'):
-        to = '/~' + request.path.raw[3:]
+def _munge(website, request, url_prefix, fs_prefix):
+    if request.path.raw.startswith(fs_prefix):
+        to = url_prefix + request.path.raw[len(fs_prefix):]
         if request.qs.raw:
             to += '?' + request.qs.raw
         website.redirect(to)
-    elif request.path.raw.startswith('/~'):
-        request.path.__init__('/~/' + request.path.raw[2:])
+    elif request.path.raw.startswith(url_prefix):
+        request.path.__init__(fs_prefix + request.path.raw[len(url_prefix):])
+
+def help_aspen_find_well_known(website, request):
+    _munge(website, request, '/.well-known/', '/_well-known/')
+    _munge(website, request, '/assets/.well-known/', '/assets/_well-known/')
+
+def use_tildes_for_participants(website, request):
+    return _munge(website, request, '/~', '/~/')
 
 
 def canonicalize(redirect, path, base, canonical, given, arguments=None):
@@ -266,3 +274,17 @@ class LazyResponse(Response):
     def render_body(self, state):
         f = self.lazy_body
         self.body = f(*resolve_dependencies(f, state).as_args)
+
+
+def get_featured_projects(popular, unpopular):
+    np, nu = len(popular), len(unpopular)
+
+    # surely optimizable & clarifiable, but it passes the tests
+    if np < 7 and nu < 3:     p, u = np, nu
+    elif np < 7 and nu >= 3:  p, u = np, 10 - np
+    elif np >= 7 and nu < 3:  p, u = 10 - nu, nu
+    else:                     p, u = 7, 3
+
+    featured_projects = random.sample(popular, p) + random.sample(unpopular, u)
+    random.shuffle(featured_projects)
+    return featured_projects

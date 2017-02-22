@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the PROJECT project.
 # 
 # Translators:
+# Chad Whitacre <chad@zetaweb.com>, 2017
 # Naofumi <naofum@gmail.com>, 2017
 msgid ""
 msgstr ""
@@ -573,27 +574,17 @@ msgstr "他の {0}利用規約{1} にも同意します。"
 msgid "Approved"
 msgstr "承認"
 
-msgid "Under Review"
-msgstr "レビュー中"
+msgid "Unreviewed"
+msgstr "未確認"
 
 msgid "Rejected"
 msgstr "否認"
 
+msgid "Featured"
+msgstr "注目"
+
 msgid "Pay for open source."
 msgstr "オープンソースに支払います。"
-
-msgid "Welcome to Gratipay!"
-msgstr "Gratipay へようこそ!"
-
-msgid ""
-"We have {nteams} projects receiving and sharing about {volume} each week."
-msgstr "毎週、{nteams} のプロジェクトを受け取り、{volume} を共有しています。"
-
-msgid "Continue to explore our projects, or {a}read more about us{_a}."
-msgstr "続けて、プロジェクトを見つけるか、{a}私たちについての詳細{_a}。"
-
-msgid "Continue"
-msgstr "続ける"
 
 msgid "Fund Your Project"
 msgstr "プロジェクトに資金を提供"
