@@ -3,21 +3,22 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import base64
 
+import aspen
+from aspen.website import Website
+
 import gratipay
 import gratipay.wireup
 from gratipay import utils, security
 from gratipay.cron import Cron
-from gratipay.models.participant import Participant
 from gratipay.security import authentication, csrf
 from gratipay.utils import erase_cookie, http_caching, i18n, set_cookie, timer
 from gratipay.version import get_version
 from gratipay.renderers import csv_dump, jinja2_htmlescaped, eval_, scss
 
-import aspen
-from aspen.website import Website
+from .email import Email
 
 
-class Application(Website):
+class Application(Website, Email):
     """Represent the Gratipay application, a monolith.
     """
 
@@ -36,8 +37,9 @@ class Application(Website):
         env = self.env = gratipay.wireup.env()
         tell_sentry = self.tell_sentry = gratipay.wireup.make_sentry_teller(env)
 
+        Email.__init__(self, env)
+
         self.db = gratipay.wireup.db(env)
-        self.mailer = gratipay.wireup.mail(env, self.project_root)
         gratipay.wireup.crypto(env)
         gratipay.wireup.base_url(self, env)
         gratipay.wireup.secure_cookies(env)
@@ -89,7 +91,7 @@ class Application(Website):
         cron = Cron(self)
         cron(env.update_cta_every, lambda: utils.update_cta(self))
         cron(env.check_db_every, self.db.self_check, True)
-        cron(env.dequeue_emails_every, Participant.dequeue_emails, True)
+        cron(env.dequeue_emails_every, self.dequeue_emails, True)
 
 
     def modify_algorithm(self, tell_sentry):
