@@ -12,10 +12,10 @@ import gratipay
 from aspen import resources
 from aspen.utils import utcnow
 from aspen.testing.client import Client
+from gratipay.application import Application
 from gratipay.billing.exchanges import record_exchange, record_exchange_result
 from gratipay.elsewhere import UserInfo
 from gratipay.exceptions import NoSelfTipping, NoTippee, BadAmount
-from gratipay.main import application
 from gratipay.models.account_elsewhere import AccountElsewhere
 from gratipay.models.exchange_route import ExchangeRoute
 from gratipay.models.participant import Participant
@@ -33,7 +33,7 @@ class ClientWithAuth(Client):
 
     def __init__(self, *a, **kw):
         Client.__init__(self, *a, **kw)
-        Client.website = application
+        Client.website = Application()
 
     def build_wsgi_environ(self, *a, **kw):
         """Extend base class to support authenticating as a certain user.
@@ -62,17 +62,19 @@ class Harness(unittest.TestCase):
     """This is the main test harness for all Gratipay tests.
     """
 
-    client = ClientWithAuth(www_root=WWW_ROOT, project_root=PROJECT_ROOT)
-    db = client.website.db
-    platforms = client.website.platforms
-    tablenames = db.all("SELECT tablename FROM pg_tables "
-                        "WHERE schemaname='public' AND tablename != 'countries'")
+    client = None
     seq = itertools.count(0)
     use_VCR = True
 
 
     @classmethod
     def setUpClass(cls):
+        if cls.client is None:
+            cls.client = ClientWithAuth(www_root=WWW_ROOT, project_root=PROJECT_ROOT)
+            cls.db = cls.client.website.db
+            cls.platforms = cls.client.website.platforms
+            cls.tablenames = cls.db.all("SELECT tablename FROM pg_tables "
+                                        "WHERE schemaname='public' AND tablename != 'countries'")
         cls.db.run("ALTER SEQUENCE exchanges_id_seq RESTART WITH 1")
         if cls.use_VCR:
             cls.setUpVCR()
