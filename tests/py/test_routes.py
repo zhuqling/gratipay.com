@@ -1,12 +1,10 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from braintree.test.nonces import Nonces
-import mock
 
 from gratipay.testing import P
 from gratipay.testing.billing import BillingHarness
 from gratipay.models.exchange_route import ExchangeRoute
-from gratipay.models.participant import Participant
 
 
 class TestRoutes(BillingHarness):
