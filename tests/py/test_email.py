@@ -3,8 +3,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import json
 import sys
 
+from pytest import raises
+
 from gratipay.exceptions import CannotRemovePrimaryEmail, EmailTaken, EmailNotVerified
-from gratipay.exceptions import TooManyEmailAddresses
+from gratipay.exceptions import TooManyEmailAddresses, Throttled
 from gratipay.testing import P
 from gratipay.testing.email import QueuedEmailHarness, SentEmailHarness
 from gratipay.models.participant import email as _email
@@ -240,6 +242,20 @@ class TestFunctions(Alice):
         last_email = self.get_last_email()
         assert 'foo&#39;bar' in last_email['body_html']
         assert '&#39;' not in last_email['body_text']
+
+    def test_queueing_email_is_throttled(self):
+        self.alice.queue_email("verification")
+        self.alice.queue_email("branch")
+        self.alice.queue_email("verification_notice")
+        self.alice.queue_email("verification")
+        raises(Throttled, self.alice.queue_email, "verification")
+
+    def test_we_can_override_throttling(self):
+        self.alice.queue_email("verification")
+        self.alice.queue_email("branch")
+        self.alice.queue_email("verification_notice")
+        self.alice.queue_email("verification")
+        raises(Throttled, self.alice.queue_email, "verification", _throttle=False)
 
 
 class DequeueEmails(SentEmailHarness):

@@ -43,6 +43,7 @@ if identity is not None and participant != user.participant:
                            , country_name=country_name
                            , country_code=country.code
                            , include_unsubscribe=False
+                           , _throttle=False
                             )
 
 # handle POST requests

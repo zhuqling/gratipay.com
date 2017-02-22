@@ -10,7 +10,7 @@ from psycopg2 import IntegrityError
 
 import gratipay
 from gratipay.exceptions import EmailAlreadyVerified, EmailTaken, CannotRemovePrimaryEmail
-from gratipay.exceptions import EmailNotVerified, TooManyEmailAddresses
+from gratipay.exceptions import EmailNotVerified, TooManyEmailAddresses, Throttled
 from gratipay.models import add_event
 from gratipay.security.crypto import constant_time_compare
 from gratipay.utils import encode_for_querystring
@@ -57,6 +57,7 @@ class Email(object):
             this participant
         :raises EmailTaken: if the email is verified for a different participant
         :raises TooManyEmailAddresses: if the participant already has 10 emails
+        :raises Throttled: if the participant has triggered too many emails too quickly
 
         """
 
@@ -202,15 +203,30 @@ class Email(object):
                   (self.id, address))
 
 
-    def queue_email(self, spt_name, **context):
-        """Given the name of an email template and context in kwargs, queue a
-        message to be sent.
+    def queue_email(self, spt_name, _throttle=False, **context):
+        """Queue an email message to be sent asynchronously.
+
+        :param unicode spt_name: name of the email template to use
+        :param bool _throttle: whether or not to throttle queueing; we only
+            want to throttle based on participant input
+        :param dict context: arguments with which to render the template (will
+            be pickled)
+
+        :raise Throttled: if the participant already has four or more messages in the queue
+
+        :returns: ``None``
+
         """
-        self.db.run("""
-            INSERT INTO email_queue
-                        (participant, spt_name, context)
-                 VALUES (%s, %s, %s)
-        """, (self.id, spt_name, pickle.dumps(context)))
+        with self.db.get_cursor() as cursor:
+            cursor.run("""
+                INSERT INTO email_queue
+                            (participant, spt_name, context)
+                     VALUES (%s, %s, %s)
+            """, (self.id, spt_name, pickle.dumps(context)))
+            if _throttle:
+                n = cursor.one('SELECT count(*) FROM email_queue WHERE participant=%s', (self.id,))
+                if n > 4:
+                    raise Throttled()
 
 
     def set_email_lang(self, accept_lang):
