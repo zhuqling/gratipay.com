@@ -58,6 +58,16 @@ class ClientWithAuth(Client):
         return Client.build_wsgi_environ(self, *a, **kw)
 
 
+_client = None
+def get_client_singleton():
+    """We only want to instantiate one client, so that we only instantiate Application once.
+    """
+    global _client
+    if not _client:
+        _client = ClientWithAuth(www_root=WWW_ROOT, project_root=PROJECT_ROOT)
+    return _client
+
+
 class Harness(unittest.TestCase):
     """This is the main test harness for all Gratipay tests.
     """
@@ -70,7 +80,7 @@ class Harness(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         if cls.client is None:
-            cls.client = ClientWithAuth(www_root=WWW_ROOT, project_root=PROJECT_ROOT)
+            cls.client = get_client_singleton()
             cls.db = cls.client.website.db
             cls.platforms = cls.client.website.platforms
             cls.tablenames = cls.db.all("SELECT tablename FROM pg_tables "
@@ -251,6 +261,15 @@ class Harness(unittest.TestCase):
         e_id = record_exchange(self.db, route, amount, fee, participant, 'pre')
         record_exchange_result(self.db, e_id, status, error, participant)
         return e_id
+
+
+    def make_participant_with_exchange(self, name):
+        participant = self.make_participant( name
+                                           , claimed_time='now'
+                                           , email_address=name+'@example.com'
+                                            )
+        self.make_exchange('braintree-cc', 50, 0, participant)
+        return participant
 
 
     def make_tip(self, tipper, tippee, amount, cursor=None):

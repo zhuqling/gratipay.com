@@ -9,8 +9,8 @@ from aspen.utils import utcnow
 from psycopg2 import IntegrityError
 
 import gratipay
-from gratipay.exceptions import EmailAlreadyTaken, CannotRemovePrimaryEmail, EmailNotVerified
-from gratipay.exceptions import TooManyEmailAddresses, ResendingTooFast
+from gratipay.exceptions import EmailAlreadyVerified, EmailTaken, CannotRemovePrimaryEmail
+from gratipay.exceptions import EmailNotVerified, TooManyEmailAddresses, ResendingTooFast
 from gratipay.models import add_event
 from gratipay.security.crypto import constant_time_compare
 from gratipay.utils import encode_for_querystring
@@ -49,7 +49,19 @@ class Email(object):
         This is called when adding a new email address, and when resending the
         verification email for an unverified email address.
 
-        :returns: the number of emails sent.
+        :param unicode email: the email address to add
+        :param unicode resend_threshold: the time interval within which a
+            previous call to this function will cause the current call to fail
+            with ``ResendingTooFast``
+
+        :returns: ``None``
+
+        :raises EmailAlreadyVerified: if the email is already verified for
+            this participant
+        :raises EmailTaken: if the email is verified for a different participant
+        :raises TooManyEmailAddresses: if the participant already has 10 emails
+        :raises ResendingTooFast: if the participant has added an email within the
+            time limit specified by ``resend_threshold``
 
         """
 
@@ -63,9 +75,9 @@ class Email(object):
         """, locals())
         if owner:
             if owner == self.username:
-                return 0
+                raise EmailAlreadyVerified(email)
             else:
-                raise EmailAlreadyTaken(email)
+                raise EmailTaken(email)
 
         if len(self.get_emails()) > 9:
             raise TooManyEmailAddresses(email)
@@ -104,17 +116,16 @@ class Email(object):
         username = self.username_lower
         encoded_email = encode_for_querystring(email)
         link = "{base_url}/~{username}/emails/verify.html?email2={encoded_email}&nonce={nonce}"
-        r = self.send_email('verification',
-                            email=email,
-                            link=link.format(**locals()),
-                            include_unsubscribe=False)
-        assert r == 1 # Make sure the verification email was sent
+        self.queue_email( 'verification'
+                        , email=email
+                        , link=link.format(**locals())
+                        , include_unsubscribe=False
+                         )
         if self.email_address:
-            self.send_email('verification_notice',
-                            new_email=email,
-                            include_unsubscribe=False)
-            return 2
-        return 1
+            self.queue_email( 'verification_notice'
+                            , new_email=email
+                            , include_unsubscribe=False
+                             )
 
 
     def update_email(self, email):

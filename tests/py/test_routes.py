@@ -39,9 +39,7 @@ class TestRoutes(BillingHarness):
         self.hit('roman', 'associate', 'braintree-cc', 'an-invalid-nonce', expected=400)
         assert self.roman.get_credit_card_error() is None
 
-    @mock.patch.object(Participant, 'send_email')
-    def test_associate_paypal(self, mailer):
-        mailer.return_value = 1 # Email successfully sent
+    def test_associate_paypal(self):
         self.roman.add_email('roman@gmail.com')
         self.db.run("UPDATE emails SET verified=true WHERE address='roman@gmail.com'")
         self.hit('roman', 'associate', 'paypal', 'roman@gmail.com')
