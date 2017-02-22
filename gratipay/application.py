@@ -25,7 +25,32 @@ class Application(Website):
     def __init__(self):
         Website.__init__(self)
         self.configure_renderers()
-        env, tell_sentry = self.wireup()
+
+        exc = None
+        try:
+            self.version = get_version()
+        except Exception, e:
+            exc = e
+            self.version = 'x'
+
+        env = self.env = gratipay.wireup.env()
+        tell_sentry = self.tell_sentry = gratipay.wireup.make_sentry_teller(env)
+
+        self.db = gratipay.wireup.db(env)
+        self.mailer = gratipay.wireup.mail(env, self.project_root)
+        gratipay.wireup.crypto(env)
+        gratipay.wireup.base_url(self, env)
+        gratipay.wireup.secure_cookies(env)
+        gratipay.wireup.billing(env)
+        gratipay.wireup.team_review(env)
+        gratipay.wireup.username_restrictions(self)
+        gratipay.wireup.load_i18n(self.project_root, tell_sentry)
+        gratipay.wireup.other_stuff(self, env)
+        gratipay.wireup.accounts_elsewhere(self, env)
+
+        if exc:
+            tell_sentry(exc, {})
+
         self.install_periodic_jobs(env)
         self.modify_algorithm(tell_sentry)
         self.monkey_patch_response()
@@ -58,34 +83,6 @@ class Application(Website):
             'type': type,
             'unicode': unicode,
         }
-
-
-    def wireup(self):
-        exc = None
-        try:
-            self.version = get_version()
-        except Exception, e:
-            exc = e
-            self.version = 'x'
-
-        env = self.env = gratipay.wireup.env()
-        tell_sentry = self.tell_sentry = gratipay.wireup.make_sentry_teller(env)
-        self.db = gratipay.wireup.db(env)
-        self.mailer = gratipay.wireup.mail(env, self.project_root)
-        gratipay.wireup.crypto(env)
-        gratipay.wireup.base_url(self, env)
-        gratipay.wireup.secure_cookies(env)
-        gratipay.wireup.billing(env)
-        gratipay.wireup.team_review(env)
-        gratipay.wireup.username_restrictions(self)
-        gratipay.wireup.load_i18n(self.project_root, tell_sentry)
-        gratipay.wireup.other_stuff(self, env)
-        gratipay.wireup.accounts_elsewhere(self, env)
-
-        if exc:
-            tell_sentry(exc, {})
-
-        return env, tell_sentry
 
 
     def install_periodic_jobs(self, env):
